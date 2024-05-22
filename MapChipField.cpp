@@ -46,6 +46,7 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 		// 1行分の文字列をストリームに変換して解析しやすくする
 		std::istringstream line_stream(line);
 		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+			std::string line;
 			std::string word;
 			getline(line_stream, word, ',');
 			if (mapChipTable.contains(word)) {
@@ -53,5 +54,22 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 			}
 		}
 	}
-	//02_04 p17
+
 }
+
+MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) { 
+	
+	if (xIndex < 0 || kNumBlockHorizontal - 1 < xIndex) {
+		return MapChipType::kBlank;
+	}
+	if (yIndex < 0 || kNumBlockHorizontal - 1 < yIndex) {
+		return MapChipType::kBlank;
+	}
+	return mapChipData_.data[yIndex][xIndex];
+}
+
+Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex) { 
+	return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0);
+}
+
+

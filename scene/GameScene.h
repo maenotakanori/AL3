@@ -12,6 +12,7 @@
 #include "DebugCamera.h"
 #include "MathUtilityForText.h"
 #include "Skydome.h"
+#include "MapchipField.h"
 
 
 /// <summary>
@@ -67,6 +68,10 @@ private: // メンバ変数
 	DebugCamera* debugCamera_ = nullptr;
 
 	Model* modelSkydome_ = nullptr;
+
+	MapChipField* mapChipField_;
+
+	void GenerateBlocks();
 
 	/// <summary>
 	/// ゲームシーン用

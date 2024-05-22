@@ -10,6 +10,7 @@ GameScene::~GameScene() {
 	delete modelBlock_;
 	delete debugCamera_;
 	delete modelSkydome_;
+	delete mapChipField_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -66,6 +67,39 @@ void GameScene::Initialize() {
 	modelSkydome_ = Model::CreateFromOBJ("SkyDome", true);
 
 	// 02_03 p32
+
+	mapChipField_ = new MapChipField;
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+
+	GenerateBlocks(){ 
+		// ブロックの個数(追加)
+		static inline const uint32_t kNumBlockVirtical = 20;
+		static inline const uint32_t kNumBlockHorizontal = 100;
+		// 要素数
+		uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+		uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+		// 要素数を変更する
+		// 列数を設定（縦方向のブロック数）
+		worldTransformBlocks_.resize(kNumBlockVirtical);
+		for (uint32_t i = 0; i < kNumBlockVirtical; i++) {
+			// 1列の要素数を設定（横方向のブロック数）
+			worldTransformBlocks_[i].resize(kNumBlockHorizontal);
+		}
+		// ブロックの生成
+		for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
+			for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+				if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+					WorldTransform* worldTransform = new WorldTransform();
+					worldTransform_->Initialize();
+					worldTransformBlocks_[i][j] = worldTransform;
+					worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+
+				}
+			}
+		}
+
+	};
+
 }
 
 void GameScene::Update() {
