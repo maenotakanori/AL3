@@ -12,7 +12,7 @@
 #include "DebugCamera.h"
 #include "MathUtilityForText.h"
 #include "Skydome.h"
-#include "MapchipField.h"
+#include "MapChipField.h"
 
 
 /// <summary>
@@ -72,6 +72,8 @@ private: // メンバ変数
 	MapChipField* mapChipField_;
 
 	void GenerateBlocks();
+
+
 
 	/// <summary>
 	/// ゲームシーン用
