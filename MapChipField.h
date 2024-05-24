@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <vector>
 #include <Vector3.h>
+#include "Model.h"
+#include "WorldTransform.h"
 
 enum class MapChipType {
 	kBlank, // 空白

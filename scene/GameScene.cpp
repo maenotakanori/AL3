@@ -210,20 +210,20 @@ void GameScene::Draw() {
 
 void GameScene::GenerateBlocks() {
 	// ブロックの個数(追加)
-	static inline const uint32_t kNumBlockVirtical = 20;
-	static inline const uint32_t kNumBlockHorizontal = 100;
+	//static inline const uint32_t kNumBlockVirtical = 20;
+	//static inline const uint32_t kNumBlockHorizontal = 100;
 	// 要素数
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 	// 要素数を変更する
 	// 列数を設定（縦方向のブロック数）
-	worldTransformBlocks_.resize(kNumBlockVirtical);
-	for (uint32_t i = 0; i < kNumBlockVirtical; i++) {
+	worldTransformBlocks_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; i++) {
 		// 1列の要素数を設定（横方向のブロック数）
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 	}
 	// ブロックの生成
-	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
 		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
 				WorldTransform* worldTransform = new WorldTransform();
