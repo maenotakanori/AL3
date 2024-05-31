@@ -27,12 +27,14 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	textureHandle_ = TextureManager::Load("uvChecker.png");
-	model_ = Model::Create();
+	model_ = Model::CreateFromOBJ("Player");
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
 
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(10, 10);
+
 	player_ = new Player();
-	player_->Initialize(model_, textureHandle_, &viewProjection_);
+	player_->Initialize(model_, &viewProjection_, playerPosition);
 
 	modelBlock_ = Model::CreateFromOBJ("cube");
 
@@ -72,6 +74,8 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
 	GenerateBlocks();
+
+	
 
 }
 
