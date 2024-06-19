@@ -17,6 +17,6 @@ private:
 	void SetTarget(Player* target) { target_ = target; }
 	void Reset();
 	Vector3 targetOffset_ = {0, 0, -15.0f};
-	//const Vector3 operator+(const Vector3 v1, const Vector3 v2);
+	const Vector3 operator+(const Vector3 v1, const Vector3 v2);
 
 };
