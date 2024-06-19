@@ -13,6 +13,7 @@
 #include "MathUtilityForText.h"
 #include "Skydome.h"
 #include "MapChipField.h"
+#include "CameraController.h"
 
 
 /// <summary>
@@ -73,6 +74,7 @@ private: // メンバ変数
 
 	void GenerateBlocks();
 
+	CameraController* comaraController_ = nullptr;
 
 
 	/// <summary>

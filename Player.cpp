@@ -118,4 +118,6 @@ void Player::Update() {
 
 }
 
-void Player::Draw() { model_->Draw(worldTransform_, *viewProjection_, textureHandle_); }
+void Player::Draw() { 
+	model_->Draw(worldTransform_, *viewProjection_); 
+}

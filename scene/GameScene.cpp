@@ -11,6 +11,7 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete modelSkydome_;
 	delete mapChipField_;
+	delete comaraController_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -36,7 +37,7 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	player_->Initialize(model_, &viewProjection_, playerPosition);
 
-	modelBlock_ = Model::CreateFromOBJ("cube");
+	modelBlock_ = Model::CreateFromOBJ("block");
 
 	//// 要素数
 	//const uint32_t kNumBlockVirtical = 10;
@@ -75,7 +76,7 @@ void GameScene::Initialize() {
 
 	GenerateBlocks();
 
-	
+	comaraController_ = new CameraController;
 
 }
 
