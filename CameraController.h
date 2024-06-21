@@ -2,21 +2,23 @@
 #include "Model.h"
 #include "WorldTransform.h"
 #include "MathUtilityForText.h"
+#include "ViewProjection.h"
 
 class Player;
 
 class CameraController {
 public:
-	void Initialize(ViewProjection* viewProjection);
+	void Initialize();
 
 	void Update();
 
-private:
-	ViewProjection* viewProjection_ = nullptr;
-	Player* target_ = nullptr;
 	void SetTarget(Player* target) { target_ = target; }
 	void Reset();
-	Vector3 targetOffset_ = {0, 0, -15.0f};
-	const Vector3 operator+(const Vector3 v1, const Vector3 v2);
+	const ViewProjection& GetviewProjection() const { return viewProjection_; }
 
+private:
+	ViewProjection viewProjection_;
+	Player* target_ = nullptr;
+	Vector3 targetOffset_ = {0, 0, -15.0f};
+	
 };

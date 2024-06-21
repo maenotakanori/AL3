@@ -77,6 +77,9 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 
 	comaraController_ = new CameraController;
+	comaraController_->Initialize();
+	comaraController_->SetTarget(player_);
+	comaraController_->Reset();
 
 }
 
@@ -119,6 +122,8 @@ void GameScene::Update() {
 		// 　ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	} else {
+		viewProjection_.matView = comaraController_->GetviewProjection().matView;
+		viewProjection_.matProjection = comaraController_->GetviewProjection().matProjection;
 		// 　ビュープロジェクション行列の更新と転送
 		viewProjection_.UpdateMatrix();
 	}
@@ -149,7 +154,7 @@ void GameScene::Update() {
 		}
 	}
 
-
+	comaraController_->Update();
 
 }
 
