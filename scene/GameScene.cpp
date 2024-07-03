@@ -81,6 +81,9 @@ void GameScene::Initialize() {
 	comaraController_->SetTarget(player_);
 	comaraController_->Reset();
 
+	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
+	comaraController_->SetMovableArea(cameraArea);
+
 }
 
 void GameScene::Update() {
@@ -125,7 +128,7 @@ void GameScene::Update() {
 		viewProjection_.matView = comaraController_->GetviewProjection().matView;
 		viewProjection_.matProjection = comaraController_->GetviewProjection().matProjection;
 		// 　ビュープロジェクション行列の更新と転送
-		viewProjection_.UpdateMatrix();
+		viewProjection_.TransferMatrix();
 	}
 
 	//// 自キャラの更新

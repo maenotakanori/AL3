@@ -15,10 +15,25 @@ public:
 	void SetTarget(Player* target) { target_ = target; }
 	void Reset();
 	const ViewProjection& GetviewProjection() const { return viewProjection_; }
+	// 短形
+	struct Rect {
+		float left = 0.0f;
+		float right = 1.0f;
+		float bottom = 0.0f;
+		float top = 1.0f;
+	};
+	// カメラ移動範囲
+	Rect movableArea_ = {0, 100, 0, 100};
+	void SetMovableArea(Rect area) { movableArea_ = area; }
 
 private:
 	ViewProjection viewProjection_;
 	Player* target_ = nullptr;
 	Vector3 targetOffset_ = {0, 0, -15.0f};
-	
+	// カメラの目標座標
+	Vector3 destPos;
+	static inline const float kInterpolationRate = 0.1f;
+	static inline const float kVelocityBias = 30.0f;
+	//02_06 p30
+
 };

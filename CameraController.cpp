@@ -8,10 +8,22 @@ void CameraController::Initialize() {
 
 }
 
-void CameraController::Update() { const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
+void CameraController::Update() { 
+	const Vector3& targetVelocity = target_->GetVelocity();
+	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 	viewProjection_.translation_ = targetWorldTransform.translation_ + targetOffset_;
-	viewProjection_.UpdateMatrix();
+	// 追従対象とオフセットと追従対象の速度からカメラの目標座標を計算
+	destPos = targetWorldTransform.translation_ + targetOffset_ + targetVelocity * kVelocityBias;
+	// 座標保管によりゆったり追従
+	viewProjection_.translation_ = Lerp(viewProjection_.translation_, destPos, kInterpolationRate);
 
+	// 移動範囲制限
+	viewProjection_.translation_.x = max(viewProjection_.translation_.x, movableArea_.left);
+	viewProjection_.translation_.x = min(viewProjection_.translation_.x, movableArea_.right);
+	viewProjection_.translation_.y = min(viewProjection_.translation_.y, movableArea_.bottom);
+	viewProjection_.translation_.y = max(viewProjection_.translation_.y, movableArea_.top);
+
+	viewProjection_.UpdateMatrix();
 
 }
 
