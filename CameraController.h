@@ -34,6 +34,7 @@ private:
 	Vector3 destPos;
 	static inline const float kInterpolationRate = 0.1f;
 	static inline const float kVelocityBias = 30.0f;
-	//02_06 p30
+	// 追従対象の各方向へのカメラ移動範囲
+	static inline const Rect margin = {-9.0f, 9.0f, -5.0f, 5.0f};
 
 };
