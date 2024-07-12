@@ -3,6 +3,7 @@
 #include "WorldTransform.h"
 #include "Input.h"
 
+class MapChipField;
 class Player {
 public:
 	void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position);
@@ -14,6 +15,12 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	const Vector3& GetVelocity() const { return velocity_; }
+
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+	void PlayerMove();
+
+	//void MapCollision(CollisionMapInfo& info);
 
 private:
 	WorldTransform worldTransform_;
@@ -48,7 +55,19 @@ private:
 	// ジャンプ初速（上方向）
 	static inline const float kJumpAcceleration = 0.5f;
 	static inline const float kAttenuationLanding = 0.1f;
-
+	// マップチップによるフィールド
+	MapChipField* mapChipField_ = nullptr;
+	// キャラクターの当たり判定サイズ
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
+	// マップとの当たり判定情報
+	struct CollisionMapInfo {
+		bool onCeiling_ = false;
+		bool onLanding_ = false;
+		bool onWall = false;
+		Vector3 amountMove;
+	};
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 
 };

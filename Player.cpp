@@ -13,6 +13,7 @@ void Player::Initialize(Model* model,ViewProjection* viewProjection, const Vecto
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
 }
 
 void Player::Update() { 
@@ -70,6 +71,7 @@ void Player::Update() {
 	worldTransform_.translation_ += velocity_;
 	// 行列計算
 	worldTransform_.UpdateMatrix();
+	//02_07 p10
 
 	// 旋回制御
 	if (turnTimer_ > 0.0f)
@@ -115,9 +117,13 @@ void Player::Update() {
 			onGround_ = true;
 		}
 	}
-
 }
 
 void Player::Draw() { 
 	model_->Draw(worldTransform_, *viewProjection_); 
+}
+
+void Player::PlayerMove() {
+
+
 }
