@@ -5,22 +5,36 @@
 
 class MapChipField;
 class Player {
+	// マップとの当たり判定情報
+	struct CollisionMapInfo {
+		bool onCeiling_ = false;
+		bool onLanding_ = false;
+		bool onWall = false;
+		Vector3 Move;
+	};
+
+	//角
+	enum Corner {
+		kRightBottom, //　右下
+		kLeftBottom,  //　左下
+		kRightTop,    //　右上
+		kLeftTop,     //　左上
+		kNumCorner    //　要素数
+	};
+
 public:
 	void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position);
-
 	void Update();
-
 	void Draw();
-
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
-
 	const Vector3& GetVelocity() const { return velocity_; }
-
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-
-	void PlayerMove();
-
-	//void MapCollision(CollisionMapInfo& info);
+	void InputMove();
+	void CheckMapCollision(CollisionMapInfo& info);
+	void CheckMapCollisionUp(CollisionMapInfo& info);
+	void CheckMapMove(CollisionMapInfo& info);
+	void CheckMapCeiling(CollisionMapInfo& info);
+	void AnimateTurn();
 
 private:
 	WorldTransform worldTransform_;
@@ -60,14 +74,7 @@ private:
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
-	// マップとの当たり判定情報
-	struct CollisionMapInfo {
-		bool onCeiling_ = false;
-		bool onLanding_ = false;
-		bool onWall = false;
-		Vector3 amountMove;
-	};
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
-
-
+	//const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	Vector3 CornerPosition(const Vector3& center, Corner corner);
+	static inline const float kBlank = 0.04f;
 };

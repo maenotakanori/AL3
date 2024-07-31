@@ -3,6 +3,9 @@
 #include "cassert"
 #include "numbers"
 #include "MathUtilityForText.h"
+#include "input.h"
+#include "DebugText.h"
+#include "MapChipField.h"
 #include <algorithm>
 
 void Player::Initialize(Model* model,ViewProjection* viewProjection, const Vector3& position) {
@@ -18,6 +21,62 @@ void Player::Initialize(Model* model,ViewProjection* viewProjection, const Vecto
 
 void Player::Update() { 
 	worldTransform_.UpdateMatrix(); 
+
+	// 移動
+	worldTransform_.translation_ += velocity_;
+	// 行列計算
+	worldTransform_.UpdateMatrix();
+	//移動入力
+	InputMove();
+	//衝突情報を初期化
+	CollisionMapInfo collisionMapInfo;
+	// 移動量に速度の値をコピー
+	collisionMapInfo.Move = velocity_;
+	// マップ衝突チェック
+	CheckMapCollision(collisionMapInfo);
+	// 移動
+	CheckMapMove(collisionMapInfo);
+	// 天井に接触している場合の処理
+	CheckMapCeiling(collisionMapInfo);
+	
+	// 着地フラグ
+	bool landing = false;
+	// 地面との当たり判定
+	// 降下中？
+	if (velocity_.y < 0) {
+		// Yshoyuが地面以下になったら着地
+		if (worldTransform_.translation_.y <= 1.0f) {
+			landing = true;
+		}
+	}
+
+	// 接地判定
+	if (onGround_) {
+		// ジャンプ開始
+		if (velocity_.y > 0.0f) {
+			// 空中状態に移行
+			onGround_ = false;
+		}
+	} else {
+		// 着地
+		if (landing) {
+			// めり込み排除
+			worldTransform_.translation_.y = 1.0f;
+			// 摩擦で横方向速度が減衰する
+			velocity_.x *= (1.0f - kAttenuationLanding);
+			// 下方向速度をリセット
+			velocity_.y = 0.0f;
+			// 接地状態に移行
+			onGround_ = true;
+		}
+	}
+}
+
+void Player::Draw() { 
+	model_->Draw(worldTransform_, *viewProjection_); 
+}
+
+void Player::InputMove() {
 	// 移動入力
 	// 左右操作移動
 	if (onGround_) {
@@ -67,63 +126,85 @@ void Player::Update() {
 		// 落下速度制限
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
-	// 移動
-	worldTransform_.translation_ += velocity_;
-	// 行列計算
-	worldTransform_.UpdateMatrix();
-	//02_07 p10
+}
 
+// マップ衝突判定
+void Player::CheckMapCollision(CollisionMapInfo& info) { 
+	CheckMapCollisionUp(info); 
+}
+
+// マップ衝突判定　上
+void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
+	// 上昇あり？
+	if (info.Move.y <= 0) {
+		return;
+	}
+	// 移動後の４つの角の座標
+	std::array<Vector3, kNumCorner> positionNew;
+	for (uint32_t i = 0; i < positionNew.size(); ++i) {
+		CornerPosition(worldTransform_.translation_ + info.Move, static_cast<Corner>(i));
+	}
+	MapChipType mapchipType;
+	// 真上の当たり判定を行う
+	bool hit = false;
+	// 左上点の判定
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftTop]);
+	mapchipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapchipType == MapChipType::kBlock) {
+		hit = true;
+	}
+	// 左上点の判定
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightTop]);
+	mapchipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapchipType == MapChipType::kBlock) {
+		hit = true;
+	}
+	// ブロックにヒット？
+	if (hit) {
+		// めり込み判定を排除する方向に移動量を設定する。
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
+		// めり込み先のブロックの範囲短形
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		info.Move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
+		// 天井に当たったことを記録する
+		info.onCeiling_ = true;
+	
+	}
+}
+
+Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
+	Vector3 offsetTable[kNumCorner] = {
+		{+kWidth / 2.0f, -kHeight / 2.0f, 0}, // kRightBottom
+	    {-kWidth / 2.0f, -kHeight / 2.0f, 0}, // kLeftBottom
+	    {+kWidth / 2.0f, +kHeight / 2.0f, 0}, // kRightTop
+	    {-kWidth / 2.0f, -kHeight / 2.0f, 0}  // kLeftTop
+	};
+	return center + offsetTable[static_cast<uint32_t>(corner)];
+}
+
+void Player::CheckMapMove(CollisionMapInfo& info) {
+	// 移動
+	worldTransform_.translation_ += info.Move;
+}
+
+void Player::CheckMapCeiling(CollisionMapInfo& info) {
+	// 天井に当たった？
+	if (info.onCeiling_) {
+		DebugText::GetInstance()->ConsolePrintf("hit ceiling\n");
+		velocity_.y = 0;
+	}
+
+}
+
+void Player::AnimateTurn() {
 	// 旋回制御
-	if (turnTimer_ > 0.0f)
-	{
-		turnTimer_ -= 1.0f/60.0f;
-		float destinationRotationYTable[] = {
-		std::numbers::pi_v<float> / 2.0f, 
-		std::numbers::pi_v<float> * 3.0f / 2.0f
-		};
+	if (turnTimer_ > 0.0f) {
+		turnTimer_ -= 1.0f / 60.0f;
+		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
 		// 状態に応じた角度を取得する
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDriection_)];
 		// 自キャラの角度を設定する
 		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, turnTimer_ / kTimeTurn);
 	}
-	// 着地フラグ
-	bool landing = false;
-	// 地面との当たり判定
-	// 降下中？
-	if (velocity_.y < 0) {
-		// Yshoyuが地面以下になったら着地
-		if (worldTransform_.translation_.y <= 1.0f) {
-			landing = true;
-		}
-	}
-
-	// 接地判定
-	if (onGround_) {
-		// ジャンプ開始
-		if (velocity_.y > 0.0f) {
-			// 空中状態に移行
-			onGround_ = false;
-		}
-	} else {
-		// 着地
-		if (landing) {
-			// めり込み排除
-			worldTransform_.translation_.y = 1.0f;
-			// 摩擦で横方向速度が減衰する
-			velocity_.x *= (1.0f - kAttenuationLanding);
-			// 下方向速度をリセット
-			velocity_.y = 0.0f;
-			// 接地状態に移行
-			onGround_ = true;
-		}
-	}
-}
-
-void Player::Draw() { 
-	model_->Draw(worldTransform_, *viewProjection_); 
-}
-
-void Player::PlayerMove() {
-
-
 }
