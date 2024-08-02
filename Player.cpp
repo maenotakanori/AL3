@@ -142,7 +142,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	// 移動後の４つの角の座標
 	std::array<Vector3, kNumCorner> positionNew;
 	for (uint32_t i = 0; i < positionNew.size(); ++i) {
-		CornerPosition(worldTransform_.translation_ + info.Move, static_cast<Corner>(i));
+		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.Move, static_cast<Corner>(i));
 	}
 	MapChipType mapchipType;
 	// 真上の当たり判定を行う
