@@ -1,6 +1,7 @@
 #pragma once
 #include "Model.h"
 #include "WorldTransform.h"
+#include "MathUtilityForText.h"
 #include "Input.h"
 
 class MapChipField;
@@ -29,12 +30,6 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-	void InputMove();
-	void CheckMapCollision(CollisionMapInfo& info);
-	void CheckMapCollisionUp(CollisionMapInfo& info);
-	void CheckMapMove(CollisionMapInfo& info);
-	void CheckMapCeiling(CollisionMapInfo& info);
-	void AnimateTurn();
 
 private:
 	WorldTransform worldTransform_;
@@ -45,9 +40,11 @@ private:
 	// 加速
 	static inline const float kAcceleration = 0.01f;
 	// 減速
-	static inline const float kAttenuation = 0.005f;
+	static inline const float kAttenuation = 0.02f;
 	// 最大値
-	static inline const float kLimitRunSpeed = 0.5f;
+	static inline const float kLimitRunSpeed = 1.0f;
+	// 着地時の速度減衰率
+	static inline const float kAttenuationwall = 0.1f;
 	// 左右
 	enum class LRDirection {
 		kRight,
@@ -69,12 +66,26 @@ private:
 	// ジャンプ初速（上方向）
 	static inline const float kJumpAcceleration = 0.5f;
 	static inline const float kAttenuationLanding = 0.1f;
+	// 落下用
+	static inline const float kGroundSearchHeight = 0.06f;
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 	//const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	void InputMove();
+	void CheckMapCollision(CollisionMapInfo& info);
+	void CheckMapCollisionUp(CollisionMapInfo& info);
+	void CheckMapCollisionDown(CollisionMapInfo& info);
+	void CheckMapCollisionRight(CollisionMapInfo& info);
+	void CheckMapCollisionLeft(CollisionMapInfo& info);
+	void CheckMapMove(CollisionMapInfo& info);
+	void CheckMapCeiling(CollisionMapInfo& info);
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
 	static inline const float kBlank = 0.04f;
+	void AnimateTurn();
+	void CheckMapLanding(const CollisionMapInfo& info);
+	void CheckMapWall(const CollisionMapInfo& info);
+
 };
